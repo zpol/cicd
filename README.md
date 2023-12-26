@@ -28,7 +28,7 @@ The Stack is composed by:
 1. Clone the repository `git clone git@github.com:zpol/cicd.git`
 2. Enter the directory and execute the start.sh file to spin up all the components with docker-compose. (You will need docker-compose installed in your system)
 
-`cd cicd`
+`cd cicd`  
 `./start.sh`
 
 Then you can access: 
@@ -41,3 +41,25 @@ Gogs: http://localhost:3000
 Drone: http://localhost:8080
 
 Access with same gogs credentials (drone does not support OpenID).
+
+# Using podman
+
+Using rootless podman socket:
+
+```shell
+systemctl --user enable --now podman.socket
+```
+
+Now you can map the podman socket in rootless mode:
+
+**$XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock**
+
+Use [podman-compose.yml](./podman-compose.yml) instead of the [docker-compose.yml](./docker-compose.yml).
+
+Just run:
+
+```shell
+./start.sh podman
+```
+
+> If you want to stop podman, run **$ podman-compose -f podman-compose.yml down**

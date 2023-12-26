@@ -1,0 +1,103 @@
+version: '3.8'
+services:
+  gogs-postgres:
+    image: docker.io/postgres:15
+    container_name: gogs-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=gogs
+      - POSTGRES_PASSWORD=gogs
+      - POSTGRES_DB=gogs
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+    networks:
+      - red1
+
+  gogs:
+    image: docker.io/gogs/gogs:latest
+    container_name: gogs
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "10022:22"
+    links:
+      - gogs-postgres
+    environment:
+      - TZ="Europe/Madrid"
+    volumes:
+      - gogs:/data
+    depends_on:
+      - gogs-postgres
+    networks:
+      - red1
+
+  drone:
+    image: docker.io/drone/drone:2
+    container_name: drone
+    environment:
+      - DRONE_DATABASE_DATASOURCE=/data/database.sqlite
+      - DRONE_DATABASE_DRIVER=sqlite3
+      - DRONE_GIT_ALWAYS_AUTH=false
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_SERVER_PROTO=http
+      - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
+      - DRONE_TLS_AUTOCERT=false
+      - DRONE_USER_CREATE=${DRONE_USER_CREATE}
+      - DRONE_LOGS_DEBUG=true
+      - DRONE_LOGS_TEXT=true
+
+      #- DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID}
+      #- DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_SECRET}
+
+      - DRONE_AGENTS_ENABLED=true 
+      - DRONE_GOGS_SERVER=http://gogs:3000
+    ports:
+      - "8080:80"
+    restart: always
+    depends_on:
+      - gogs
+    volumes:
+      - drone-lib:/var/lib/drone
+      - $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock" #https://stackoverflow.com/questions/72690495/interact-with-podman-docker-via-socket-in-redhat-9
+      - drone-data:/data"
+    networks:
+      - red1
+
+  drone-runner:
+    container_name: drone-runner
+    image: docker.io/drone/drone-runner-docker:1
+    restart: unless-stopped
+    depends_on:
+      - drone
+    environment:
+      - DRONE_RPC_PROTO=http
+      - DRONE_RPC_HOST=drone:80
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_RUNNER_NAME="${HOSTNAME}-runner"
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NETWORKS=pipeline_red1
+      - DRONE_DEBUG=true
+      - DRONE_TRACE=true
+    ports:
+      - "4000:3000"
+    networks:
+      - red1
+    volumes:
+      -  $XDG_RUNTIME_DIR/podman/podman.sock:/var/run/docker.sock
+
+volumes:
+  drone-lib:
+    name: drone-lib
+  drone-data:
+    name: drone-data
+  db:
+    name: db
+  gogs:
+    name: gogs
+
+networks:
+  red1:
+    driver: bridge
+    
