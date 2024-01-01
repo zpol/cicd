@@ -63,3 +63,9 @@ Just run:
 ```
 
 > If you want to stop podman, run **$ podman-compose -f podman-compose.yml down**
+
+
+# Branches
+
+`main` will act as a main branch where everything is merged into when tested.
+`drone` This branch will probably continue a little bit since it's already working except for trigerring auto on code push
