@@ -1,27 +1,23 @@
-#!/bin/bash
+#!/bin/bash 
 
-function launch_stack() {
+function b() {
 
-	#export DRONE_GITHUB_CLIENT_ID=
-	#export DRONE_GITHUB_CLIENT_SECRET=
+	echo -e "\e[32mICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvLy8gICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgLy8vLy8vLy8vICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICovLy8vLy8vLy8vLy8vICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAvLy8vLy8vLy8vLy8vLy8vLyAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICovLiAgICAvLy8vLy8vLy8vLy8vLy8vLyAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgLy8vLy8vLyAgICAgLy8vLy8vLy8vLy8vLy8vLy8gICAgICAgICAgICAgICAKICAgICAgICAgICAgICovLy8vLy8vLy8vLy4gICAgICAgIC8vLy8vLy8vLy8vLy8gICAgICAgICAgICAgCiAgICAgICAgICAgLy8vLy8vLy8vLy8vLy8vICAgICAgICAgLy8vLy8vLy8vLy8vLy8vICAgICAgICAgIAogICAgICAgICovLy8vLy8vLy8vLy8vLy8vLy8gICAgICAgIC8vLy8vLy8vLy8vLy8vLy8vICAgICAgICAKICAgICAgLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8gICAuICAgICAvLy8vLy8vLy8vLy8vLy8vLyAgICAgCiAgICwvLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vICAgLi8vLiAgICAvLy8vLy8vLy8vLy8vLy8vLyAgIAogLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLyAgIC4vLy8vLyAgICAgICAgLi8vLy8vLy8vLy8vLy8KLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8gICAuLy8vLy8vICAgICAgICAgLy8vLy8vLy8vLy8vCiAvLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vICAgLi8vLy8vLyAgICAgICAgLy8vLy8vLy8vLy8vLwogICAgLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLyAgIC4vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8gICAKICAgICAgLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8gICAuLy8vLy8vLy8vLy8vLy8vLy8vLy8vLyAgICAgCiAgICAgICAgIC8vLy8vLy8vLy8vLy8vLy8vLyAgICAgICAvLy8vLy8vLy8vLy8vLy8vLy8gICAgICAgIAogICAgICAgICAgIC8vLy8vLy8vLy8vLy8vLyAgICAgICAgIC8vLy8vLy8vLy8vLy8vLyAgICAgICAgICAKICAgICAgICAgICAgICAvLy8vLy8vLy8vLy8vICAgICAgIC8vLy8vLy8vLy8vLy8gICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAvLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8vLyAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgLy8vLy8vLy8vLy8vLy8vLy8vLy8vLy8gICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgLy8vLy8vLy8vLy8vLy8vLy8vLyAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgIC8vLy8vLy8vLy8vLy8gICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgIC8vLy8vLy8vLyAgICAgICAgICAgICAgICAgICAgICAgICAKCgoJCcK3wrfCtyBHb2dzICsgR29DRCBBdXRvbWF0aW9uIMK3wrfCtwo=\e[0m" |base64 -d
 
-	export DRONE_GITHUB_ADMIN=gogs
-	export DRONE_SERVER_HOST=http://drone:3000
-
-	export HOSTNAME=$(hostname)
-	export DRONE_RPC_SECRET="$(echo ${HOSTNAME} | openssl dgst -md5 -hex)"
-	export DRONE_USER_CREATE="username:${DRONE_GITHUB_ADMIN},machine:false,admin:true,token:${DRONE_RPC_SECRET}"
-
-	if [ "$1" == "podman" ]; then
-		podman-compose -f podman-compose.yml up -d
-		echo "$DRONE_RPC_SECRET"
-	else 
-		docker-compose up -d
-	fi
 }
 
-# Uncomment to cleanup local data like mysql and so on... 
-# sudo rm -rf db-data drone gogs-data
-launch_stack "$1"
+GOGS_CFG_DIR="gogs-data/gogs/conf/"
 
 
+function preflight_checks() {
+
+	echo "create volumes structure & populate it with cfg files"
+	mkdir -p ${GOGS_CFG_DIR}
+	cp config/gogs/app.ini ${GOGS_CFG_DIR}
+
+}
+
+
+
+preflight_checks
+docker-compose up -d

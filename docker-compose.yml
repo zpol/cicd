@@ -30,66 +30,32 @@ services:
       - TZ="Europe/Madrid"
     volumes:
       - ./gogs-data:/data
+      - ./config/gogs:/data/gogs/conf
     depends_on:
       - gogs-postgres
     networks:
       - red1
 
-  drone:
-    image: drone/drone:2
-    container_name: drone
-    environment:
-      - DRONE_DATABASE_DATASOURCE=/data/database.sqlite
-      - DRONE_DATABASE_DRIVER=sqlite3
-      - DRONE_GIT_ALWAYS_AUTH=false
-      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
-      - DRONE_SERVER_PROTO=http
-      - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
-      - DRONE_TLS_AUTOCERT=false
-      - DRONE_USER_CREATE=${DRONE_USER_CREATE}
-      - DRONE_LOGS_DEBUG=true
-      - DRONE_LOGS_TEXT=true
-
-      #- DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID}
-      #- DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_SECRET}
-
-      - DRONE_AGENTS_ENABLED=true 
-      - DRONE_GOGS_SERVER=http://gogs:3000
-    ports:
-      - "8080:80"
-    restart: always
-    depends_on:
-      - gogs
-    volumes:
-      - "/var/lib/drone:/var/lib/drone"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./drone:/data"
-    networks:
-      - red1
-
-  drone-runner:
-    container_name: drone-runner
-    image: drone/drone-runner-docker:1
+  gocd-server:
+    image: gocd/gocd-server:v23.5.0
+    container_name: gocd-server
     restart: unless-stopped
-    depends_on:
-      - drone
-    environment:
-      - DRONE_RPC_PROTO=http
-      - DRONE_RPC_HOST=drone:80
-      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
-      - DRONE_RUNNER_NAME="${HOSTNAME}-runner"
-      - DRONE_RUNNER_CAPACITY=2
-      - DRONE_RUNNER_NETWORKS=pipeline_red1
-      - DRONE_DEBUG=true
-      - DRONE_TRACE=true
     ports:
-      - "4000:3000"
+      - "8153:8153"
     networks:
       - red1
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+
+  gocd-agent:
+    image: gocd/gocd-agent-alpine-3.16:v23.5.0
+    container_name: gocd-agent
+    restart: unless-stopped
+    environment:
+      - GO_SERVER_URL=http://gocd-server:8153/go
+    networks:
+      - red1
+    depends_on:
+      - gocd-server
 
 networks:
   red1:
     driver: bridge
-    
