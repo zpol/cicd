@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="139">
+  <server agentAutoRegisterKey="9b5775c9-cd3a-4c12-83c3-f35c829d25ad" webhookSecret="53fa1ba9-aba3-4c0c-ae54-dfaf98de4ac0" serverId="fd4ad815-d91e-49d0-8c65-4d72bc952d08" tokenGenerationKey="ab2e9aec-83c4-4fed-ab9b-138823a36359">
+    <artifacts>
+      <artifactsDir>artifacts</artifactsDir>
+    </artifacts>
+  </server>
+  <pipelines group="defaultGroup">
+    <pipeline name="pipeline-putorepo4">
+      <materials>
+        <git url="http://gogs:gogs@172.19.0.1:3000/gogs/putorepo-test4" username="" materialName="putorepo4" />
+      </materials>
+      <stage name="test-and-reports">
+        <jobs>
+          <job name="unit-testing">
+            <tasks>
+              <exec command="echo">
+                <arg>hello world hjahaha</arg>
+              </exec>
+            </tasks>
+          </job>
+        </jobs>
+      </stage>
+    </pipeline>
+  </pipelines>
+</cruise>
