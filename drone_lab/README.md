@@ -1,10 +1,10 @@
-# CI/CD
-CI/CD pipeline with drone + gocd
+# cicd
+CI/CD pipeline with drone + gogs
 
 
 # CI/CD Environment for local development
 
-This is a builder for a fast, lightweight & efficient pipeline workflows owning your own private "github" with gogs and automated pipelines with gocd.
+This is a builder for a fast, lightweight & efficient pipeline workflows owning your own private "github" with gogs and automated pipelines with awesome already built in plugins with drone.
 
 The main objective is to have a fast deployable infrastructure to be able to: 
 
@@ -19,8 +19,8 @@ The Stack is composed by:
 
 * PostgreSQL: to store some data for gogs
 * gogs: code repository 
-* gocd-server: pipelines and jobs & tasks manager/scheduler
-* gocd-client: spin up containers to do the tasks/jobs
+* drone: pipelines and jobs & tasks manager/scheduler
+* drone-runner: spin up containers to do the tasks/jobs
 
 
 ## Quickstart: 
@@ -38,23 +38,9 @@ Gogs: http://localhost:3000
 <screenshot config gogs>
 <screenshot gogs user + repo created>
 
-GoCD: http://localhost:8153
+Drone: http://localhost:8080
 
-
-To start coding and triggering pipelines you must setup some stuff first: 
-
-1. Go to http://localhost:3000 and register to create an account.
-
-2. Create a repository
-
-3. Go to http://localhost:8153 and configure your repo , pipeline and other settings.
-
-    Example repo config line: `http://gogs:gogs@gogs:3000/gogs/<reponame>`
-
-4. Go to agents and enable the one that you see on the list. 
-
-5. After the pipeline creation everything should work properly
-
+Access with same gogs credentials (drone does not support OpenID).
 
 # Using podman
 
