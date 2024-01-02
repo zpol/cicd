@@ -18,6 +18,6 @@ function preflight_checks() {
 }
 
 
-
+b
 preflight_checks
 docker-compose up -d
